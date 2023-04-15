@@ -38,4 +38,88 @@ impl Position {
         return self.height[col] < HEIGHT;
     }
 
+    fn is_winning_move(&self, col: usize) -> bool {
+        return self.check_vertical(col) || self.check_horizontal(col) || self.check_diagonal(col);
+    }
+
+    fn check_vertical(&self, col: usize) -> bool {
+        return self.height[col] >= 3
+            && self.board[self.height[col] - 1][col] == self.current
+            && self.board[self.height[col] - 2][col] == self.current
+            && self.board[self.height[col] - 3][col] == self.current;
+    }
+
+    fn check_horizontal(&self, col: usize) -> bool {
+        let mut num_stones: u8 = 0;
+        let mut x = col + 1;
+        while x < WIDTH && self.board[self.height[col]][x] == self.current {
+            num_stones += 1;
+            x += 1;
+        }
+        if col >= 1 {
+            x = col - 1;
+            while self.board[self.height[col]][x] == self.current {
+                num_stones += 1;
+                if x == 0 {
+                    break;
+                }
+                x -= 1;
+            }
+        }
+        return num_stones >= 3;
+    }
+
+    fn check_diagonal(&self, col: usize) -> bool {
+        let mut num_stones: u8 = 0;
+        let mut x = col + 1;
+        let mut y = self.height[col] + 1;
+        while x < WIDTH && y < HEIGHT && self.board[y][x] == self.current {
+            num_stones += 1;
+            x += 1;
+            y += 1;
+        }
+        if col >= 1 && self.height[col] >= 1 {
+            x = col - 1;
+            y = self.height[col] - 1;
+            while self.board[y][x] == self.current {
+                num_stones += 1;
+                if x == 0 || y == 0 {
+                    break;
+                }
+                x -= 1;
+                y -= 1;
+            }
+        }
+        if num_stones >= 3 {
+            return true;
+        }
+
+        num_stones = 0;
+        if self.height[col] >= 1 {
+            x = col + 1;
+            y = self.height[col] - 1;
+            while x < WIDTH && self.board[y][x] == self.current {
+                num_stones += 1;
+                if y == 0 {
+                    break;
+                }
+                x += 1;
+                y -= 1;
+            }
+        }
+        if col >= 1 {
+            x = col - 1;
+            y = self.height[col] + 1;
+            while y < WIDTH && self.board[y][x] == self.current {
+                num_stones += 1;
+                if x == 0 {
+                    break;
+                }
+                x -= 1;
+                y += 1;
+            }
+        }
+        return num_stones >= 3;
+    }
+}
 }
