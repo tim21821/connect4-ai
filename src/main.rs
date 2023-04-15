@@ -138,7 +138,7 @@ impl Position {
         if col >= 1 {
             x = col - 1;
             y = self.height[col] + 1;
-            while y < WIDTH && self.board[y][x] == self.current {
+            while y < HEIGHT && self.board[y][x] == self.current {
                 num_stones += 1;
                 if x == 0 {
                     break;
