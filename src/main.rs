@@ -1,4 +1,5 @@
 use std::cmp;
+use std::fs;
 
 const WIDTH: usize = 7;
 const HEIGHT: usize = 6;
@@ -149,4 +150,19 @@ impl Position {
         return num_stones >= 3;
     }
 }
+
+fn load_from_file(path: &str) -> (Vec<Position>, Vec<i8>) {
+    let content = fs::read_to_string(path).expect("File could not be read.");
+    let lines: Vec<&str> = content.split("\n").collect();
+    let mut positions: Vec<Position> = Vec::new();
+    let mut evaluations: Vec<i8> = Vec::new();
+    for line in lines {
+        let s: Vec<&str> = line.trim().split(" ").collect();
+        positions.push(Position::from_sequence(s[0]));
+        evaluations.push(s[1].parse().unwrap());
+    }
+
+    return (positions, evaluations);
+}
+
 }
