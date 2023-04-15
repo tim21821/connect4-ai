@@ -1,5 +1,8 @@
 use std::cmp;
 use std::fs;
+use std::io::stdin;
+use std::iter::zip;
+use std::time::Instant;
 
 const WIDTH: usize = 7;
 const HEIGHT: usize = 6;
@@ -165,4 +168,29 @@ fn load_from_file(path: &str) -> (Vec<Position>, Vec<i8>) {
     return (positions, evaluations);
 }
 
+fn main() {
+    println!("Select a level of positions [1-6]: ");
+    let mut input = String::new();
+    stdin().read_line(&mut input).expect("Could not read input");
+    let level: i8 = input.trim().parse().expect("Could not parse input");
+    let (positions, evaluations) = match level {
+        1 => load_from_file("test_files/Test_L3_R1"),
+        2 => load_from_file("test_files/Test_L2_R1"),
+        3 => load_from_file("test_files/Test_L2_R2"),
+        4 => load_from_file("test_files/Test_L1_R1"),
+        5 => load_from_file("test_files/Test_L1_R2"),
+        6 => load_from_file("test_files/Test_L1_R3"),
+        _ => panic!("Unknown level!"),
+    };
+    let mut score = 0;
+    let now = Instant::now();
+    for (position, eval) in zip(positions, evaluations) {
+        let e = position.negamax();
+        if e == eval {
+            score += 1;
+        }
+        println!("{}", score);
+    }
+    let elapsed = now.elapsed();
+    println!("Elapsed time: {:.2?}", elapsed);
 }
