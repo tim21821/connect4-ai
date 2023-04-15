@@ -189,8 +189,8 @@ fn main() {
         if e == eval {
             score += 1;
         }
-        println!("{}", score);
     }
     let elapsed = now.elapsed();
+    println!("Correctly evaluated: {}", score);
     println!("Elapsed time: {:.2?}", elapsed);
 }
