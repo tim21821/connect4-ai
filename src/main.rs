@@ -1,10 +1,13 @@
+use std::cmp;
+
 const WIDTH: usize = 7;
 const HEIGHT: usize = 6;
 
+#[derive(Clone)]
 struct Position {
     board: [[i8; WIDTH]; HEIGHT],
     height: [usize; WIDTH],
-    num_moves: u8,
+    num_moves: i8,
     current: i8,
 }
 
@@ -25,6 +28,30 @@ impl Position {
             p.play(col);
         }
         return p;
+    }
+
+    fn negamax(&self) -> i8 {
+        if self.num_moves == (WIDTH * HEIGHT) as i8 {
+            return 0;
+        }
+
+        for col in 0..WIDTH {
+            if self.can_play(col) && self.is_winning_move(col) {
+                return ((WIDTH * HEIGHT + 1) as i8 - self.num_moves) / 2;
+            }
+        }
+
+        let mut best_score: i8 = i8::MIN;
+
+        for col in 0..WIDTH {
+            if self.can_play(col) {
+                let mut new_position = self.clone();
+                new_position.play(col);
+                let score = -1 * new_position.negamax();
+                best_score = cmp::max(best_score, score);
+            }
+        }
+        return best_score;
     }
 
     fn play(&mut self, col: usize) {
