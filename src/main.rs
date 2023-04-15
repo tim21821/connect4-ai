@@ -33,4 +33,9 @@ impl Position {
         self.num_moves += 1;
         self.current *= -1;
     }
+
+    fn can_play(&self, col: usize) -> bool {
+        return self.height[col] < HEIGHT;
+    }
+
 }
