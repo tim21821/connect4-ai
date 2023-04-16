@@ -58,7 +58,8 @@ impl Position {
             return beta; // prune if alpha-beta-window is empty
         }
 
-        for col in 0..WIDTH {
+        for col in [3, 2, 4, 1, 5, 0, 6] {
+            // custom move order inside-out
             if self.can_play(col) {
                 let mut new_position = self.clone();
                 new_position.play(col);
