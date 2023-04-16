@@ -7,6 +7,7 @@ use std::time::Instant;
 const WIDTH: usize = 7;
 const HEIGHT: usize = 6;
 
+/// A position of a connect 4 board
 #[derive(Clone)]
 struct Position {
     board: [[i8; WIDTH]; HEIGHT],
@@ -25,6 +26,7 @@ impl Position {
         };
     }
 
+    /// Builds a Position from a sequence of played columns, 1-indexed
     fn from_sequence(seq: &str) -> Self {
         let mut p = Self::new();
         for c in seq.chars() {
@@ -34,6 +36,9 @@ impl Position {
         return p;
     }
 
+    /// Evaluates a given Position using the negamax algorithm
+    /// Score is given by how many moves before the end a given player wins
+    /// Active player gets positive scores, opponent gets negative scores
     fn negamax(&self) -> i8 {
         if self.num_moves == (WIDTH * HEIGHT) as i8 {
             return 0;
@@ -58,6 +63,8 @@ impl Position {
         return best_score;
     }
 
+    /// Play a move, 0-indexed
+    /// The move is expected to be a legal, playable move
     fn play(&mut self, col: usize) {
         self.board[self.height[col]][col] = self.current;
         self.height[col] += 1;
@@ -65,14 +72,19 @@ impl Position {
         self.current *= -1;
     }
 
+    /// Returns whether the move is legal, 0-indexed
     fn can_play(&self, col: usize) -> bool {
         return self.height[col] < HEIGHT;
     }
 
+    /// Returns whether the move wins for the current player, 0-indexed
+    /// The move is expected to be a legal, playable move
     fn is_winning_move(&self, col: usize) -> bool {
         return self.check_vertical(col) || self.check_horizontal(col) || self.check_diagonal(col);
     }
 
+    /// Returns whether the move results in a vertical alignment of at least 4, 0-indexed
+    /// The move is expected to be a legal, playable move
     fn check_vertical(&self, col: usize) -> bool {
         return self.height[col] >= 3
             && self.board[self.height[col] - 1][col] == self.current
@@ -80,6 +92,8 @@ impl Position {
             && self.board[self.height[col] - 3][col] == self.current;
     }
 
+    /// Returns whether the move results in a horizontal alignment of at least 4, 0-indexed
+    /// The move is expected to be a legal, playable move
     fn check_horizontal(&self, col: usize) -> bool {
         let mut num_stones: u8 = 0;
         let mut x = col + 1;
@@ -100,6 +114,8 @@ impl Position {
         return num_stones >= 3;
     }
 
+    /// Returns whether the move results in a diagonal alignment of at least 4, 0-indexed
+    /// The move is expected to be a legal, playable move
     fn check_diagonal(&self, col: usize) -> bool {
         let mut num_stones: u8 = 0;
         let mut x = col + 1;
@@ -154,6 +170,7 @@ impl Position {
     }
 }
 
+/// Reads a benchmark file and returns the described positions and evaluations
 fn load_from_file(path: &str) -> (Vec<Position>, Vec<i8>) {
     let content = fs::read_to_string(path).expect("File could not be read.");
     let lines: Vec<&str> = content.split("\n").collect();
