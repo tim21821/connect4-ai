@@ -39,7 +39,7 @@ impl Position {
     /// Evaluates a given Position using the negamax algorithm
     /// Score is given by how many moves before the end a given player wins
     /// Active player gets positive scores, opponent gets negative scores
-    fn negamax(&self) -> i8 {
+    fn negamax(&self, a: Option<i8>, b: Option<i8>) -> i8 {
         if self.num_moves == (WIDTH * HEIGHT) as i8 {
             return 0;
         }
@@ -50,17 +50,29 @@ impl Position {
             }
         }
 
-        let mut best_score: i8 = i8::MIN;
+        let mut alpha = a.unwrap_or(-127);
+        let max: i8 = ((WIDTH * HEIGHT - 1) as i8 - self.num_moves) / 2; // maximum possible value
+        let beta = cmp::min(b.unwrap_or(127), max); // no need to keep beta above maximum
+
+        if alpha >= beta {
+            return beta; // prune if alpha-beta-window is empty
+        }
 
         for col in 0..WIDTH {
             if self.can_play(col) {
                 let mut new_position = self.clone();
                 new_position.play(col);
-                let score = -1 * new_position.negamax();
-                best_score = cmp::max(best_score, score);
+                let score = -1 * new_position.negamax(Some(-1 * beta), Some(-1 * alpha));
+
+                if score >= beta {
+                    return score; // prune if better score than looking for
+                }
+                if score > alpha {
+                    alpha = score; // only look for position better than current best
+                }
             }
         }
-        return best_score;
+        return alpha;
     }
 
     /// Play a move, 0-indexed
@@ -202,7 +214,7 @@ fn main() {
     let mut score = 0;
     let now = Instant::now();
     for (position, eval) in zip(positions, evaluations) {
-        let e = position.negamax();
+        let e = position.negamax(None, None);
         if e == eval {
             score += 1;
         }
@@ -210,4 +222,5 @@ fn main() {
     let elapsed = now.elapsed();
     println!("Correctly evaluated: {}", score);
     println!("Elapsed time: {:.2?}", elapsed);
+    println!("Average time: {:.2?}", elapsed / 1000);
 }
